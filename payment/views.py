@@ -7,14 +7,6 @@ import requests
 
 # Create your views here.
 
-if settings.SANDBOX:
-    sandbox = 'sandbox'
-else :
-    sandbox = 'www'
-
-ZP_API_REQUEST = f"https://{sandbox}.zarinpal.com/pg/rest/WebGate/PaymentRequest.json"
-ZP_API_VERIFY = f"https://{sandbox}.zarinpal.com/pg/rest/WebGate/PaymentVerification.json"
-ZP_API_STARTPAY = f"https://{sandbox}.zarinpal.com/pg/StartPay/"
 
 amount = 1000 
 description = "castilla.ir"
@@ -30,17 +22,16 @@ def orderPayVerify(request):
         'Description': description,
         "Mobile": phone,
         "Email": email,
-
     }
 
     data = json.dumps(data)
     headers = {'content-type' : 'application/json', 'accept' : 'application/json'}
-    res = requests.post(ZP_API_REQUEST, data=data, headers=headers)
+    res = requests.post(settings.ZP_API_REQUEST, data=data, headers=headers)
     
     if res.status_code == 200:
         response = res.json()
         if response['Status'] == 100:
-            url = f"{ZP_API_STARTPAY}{response['Authority']}"
+            url = f"{settings.ZP_API_STARTPAY}{response['Authority']}"
             return redirect(url)
     else:
         return HttpResponse(str(res.json()['errors']))
@@ -60,13 +51,13 @@ class OrderPayView(View):
     
         data = json.dumps(data)
         headers = {'content-type' : 'application/json', 'accept' : 'application/json'}
-        res = requests.post(ZP_API_REQUEST, data=data, headers=headers)
+        res = requests.post(settings.ZP_API_REQUEST, data=data, headers=headers)
 
         if res.status_code == 200:
             response = res.json()
             print(response)
             if response['Status'] == 100:
-                url = f"{ZP_API_STARTPAY}{response['Authority']}"
+                url = f"{settings.ZP_API_STARTPAY}{response['Authority']}"
                 return redirect(url)
         else:
             return HttpResponse(str(res.json()['errors']))
